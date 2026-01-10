@@ -38,11 +38,11 @@ export default async function handler(req, res) {
             return res.status(403).json({ error: 'Kullanıcı veritabanında bulunamadı.' });
         }
 
-        // Check Permissions: Admin OR has 'dispo' app access (case-insensitive)
+        // Check Permissions: Admin OR has 'labproject' app access (case-insensitive)
         const isAdmin = user.role === 'admin';
-        const hasDispoAccess = Array.isArray(user.apps) && user.apps.some(app => app.toLowerCase() === 'dispo');
+        const hasProjectAccess = Array.isArray(user.apps) && user.apps.some(app => app.toLowerCase() === 'labproject');
 
-        if (isAdmin || hasDispoAccess) {
+        if (isAdmin || hasProjectAccess) {
             // Success! Return the user data (merged or from Apex)
             return res.status(200).json({
                 ...userData,
