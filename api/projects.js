@@ -38,7 +38,7 @@ export default async function handler(req, res) {
         case 'PUT':
             // Update logic (e.g. for status change or edits)
             try {
-                const { id, ...updateData } = req.body;
+                const { id, _id, ...updateData } = req.body;
                 if (!id) return res.status(400).json({ error: 'ID required' });
 
                 await collection.updateOne(
@@ -51,8 +51,24 @@ export default async function handler(req, res) {
             }
             break;
 
+        case 'DELETE':
+            try {
+                const id = req.body?.id || req.query?.id;
+                if (!id) return res.status(400).json({ error: 'ID required' });
+
+                const result = await collection.deleteOne({ _id: new ObjectId(id) });
+                if (result.deletedCount === 1) {
+                    res.status(200).json({ success: true });
+                } else {
+                    res.status(404).json({ error: 'Project not found' });
+                }
+            } catch (e) {
+                res.status(500).json({ error: e.message });
+            }
+            break;
+
         default:
-            res.setHeader('Allow', ['GET', 'POST', 'PUT']);
+            res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
             res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 }

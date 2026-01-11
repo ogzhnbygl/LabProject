@@ -9,6 +9,7 @@ function App() {
     const [currentView, setCurrentView] = useState('projects');
     const [projects, setProjects] = useState([]);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [editingProject, setEditingProject] = useState(null);
 
     // Auth check logic (Proxy to Apex)
     useEffect(() => {
@@ -45,20 +46,80 @@ function App() {
         }
     };
 
+    const handleEditProject = (project) => {
+        setCurrentView('edit-project');
+        // We'll pass this project to the form
+    };
+
+    const handleUpdateProject = async (data) => {
+        try {
+            const res = await fetch('/api/projects', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                setRefreshTrigger(prev => prev + 1);
+                setCurrentView('projects');
+            } else {
+                alert('Error updating project');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Network error');
+        }
+    };
+
+    const handleDeleteProject = async (id) => {
+        if (!confirm('Projeyi silmek istediğinize emin misiniz?')) return;
+
+        try {
+            const res = await fetch(`/api/projects?id=${id}`, {
+                method: 'DELETE',
+            });
+            if (res.ok) {
+                setRefreshTrigger(prev => prev + 1);
+                setCurrentView('projects');
+            } else {
+                alert('Error deleting project');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Network error');
+        }
+    };
+
     if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+
+    const onProjectClick = (project) => {
+        setEditingProject(project);
+        setCurrentView('edit-project');
+    };
 
     return (
         <Layout user={user} currentView={currentView} onViewChange={setCurrentView}>
             {currentView === 'projects' && (
                 <ProjectList
-                    projects={projects} // Pass real data
-                    onNewProject={() => setCurrentView('new-project')}
+                    projects={projects}
+                    onNewProject={() => {
+                        setEditingProject(null);
+                        setCurrentView('new-project');
+                    }}
+                    onProjectClick={onProjectClick}
                 />
             )}
             {currentView === 'new-project' && (
                 <ProjectForm
                     onCancel={() => setCurrentView('projects')}
                     onSave={handleSaveProject}
+                />
+            )}
+            {currentView === 'edit-project' && (
+                <ProjectForm
+                    initialData={editingProject}
+                    onCancel={() => setCurrentView('projects')}
+                    onSave={handleUpdateProject}
+                    onDelete={handleDeleteProject}
                 />
             )}
             {currentView === 'timeline' && (

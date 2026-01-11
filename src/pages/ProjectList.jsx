@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Search, Calendar, AlertCircle, FileText } from 'lucide-react';
 
-export default function ProjectList({ onNewProject, projects = [] }) {
+export default function ProjectList({ onNewProject, projects = [], onProjectClick }) {
     const [searchTerm, setSearchTerm] = useState('');
 
     // Filter projects
@@ -57,7 +57,11 @@ export default function ProjectList({ onNewProject, projects = [] }) {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {filteredProjects.map((project) => (
-                                <tr key={project.id} className="hover:bg-slate-50 transition-colors">
+                                <tr
+                                    key={project.id}
+                                    onClick={() => onProjectClick && onProjectClick(project)}
+                                    className="hover:bg-slate-50 transition-colors cursor-pointer"
+                                >
                                     <td className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
                                         {project.code}
                                     </td>
@@ -70,9 +74,13 @@ export default function ProjectList({ onNewProject, projects = [] }) {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${project.status === 'Active'
                                             ? 'bg-green-50 text-green-700 border-green-200'
-                                            : 'bg-red-50 text-red-700 border-red-200'
+                                            : project.status === 'Completed'
+                                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                                : 'bg-red-50 text-red-700 border-red-200'
                                             }`}>
-                                            {project.status === 'Active' ? 'Aktif' : 'Süresi Dolmuş'}
+                                            {project.status === 'Active' ? 'Aktif'
+                                                : project.status === 'Completed' ? 'Tamamlandı'
+                                                    : 'Süresi Dolmuş'}
                                         </span>
                                     </td>
                                 </tr>

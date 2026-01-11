@@ -7,16 +7,19 @@ const SPECIES_STRAINS = {
     'Tavşan': ['New Zealand White']
 };
 
-export default function ProjectForm({ onCancel, onSave }) {
-    const [formData, setFormData] = useState({
+export default function ProjectForm({ onCancel, onSave, onDelete, initialData }) {
+    const [formData, setFormData] = useState(initialData || {
         title: '',
         code: '',
         pi: '',
         startDate: '',
         endDate: '',
         ethicsDate: '',
+        status: 'Active',
         quotas: [{ species: 'Fare', strain: 'BALB/c', sex: 'Erkek', count: 0, used: 0 }]
     });
+
+    const isEditing = !!initialData;
 
     const handleQuotaChange = (index, field, value) => {
         const newQuotas = [...formData.quotas];
@@ -48,10 +51,23 @@ export default function ProjectForm({ onCancel, onSave }) {
     return (
         <div className="max-w-3xl mx-auto">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-slate-800">Yeni Proje Tanımla</h2>
-                <button onClick={onCancel} className="text-slate-500 hover:text-slate-700">
-                    <X size={24} />
-                </button>
+                <h2 className="text-2xl font-bold text-slate-800">
+                    {isEditing ? 'Projeyi Düzenle' : 'Yeni Proje Tanımla'}
+                </h2>
+                <div className="flex items-center gap-3">
+                    {isEditing && onDelete && (
+                        <button
+                            type="button"
+                            onClick={() => onDelete(formData.id)}
+                            className="text-red-500 hover:text-red-700 font-medium text-sm flex items-center gap-1"
+                        >
+                            <Trash2 size={18} /> Sil
+                        </button>
+                    )}
+                    <button onClick={onCancel} className="text-slate-500 hover:text-slate-700">
+                        <X size={24} />
+                    </button>
+                </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -115,6 +131,22 @@ export default function ProjectForm({ onCancel, onSave }) {
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             />
                         </div>
+
+                        {isEditing && (
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Durum</label>
+                                <select
+                                    value={formData.status || 'Active'}
+                                    onChange={e => setFormData({ ...formData, status: e.target.value })}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                >
+                                    <option value="Active">Aktif</option>
+                                    <option value="Completed">Tamamlandı</option>
+                                    <option value="Expired">Süresi Dolmuş</option>
+                                    <option value="Cancelled">İptal Edildi</option>
+                                </select>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -183,16 +215,18 @@ export default function ProjectForm({ onCancel, onSave }) {
                 </div>
 
                 {/* AI Upload Placeholder */}
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 border-dashed border-2 flex flex-col items-center justify-center text-center">
-                    <div className="bg-white p-3 rounded-full shadow-sm mb-3">
-                        <Upload className="text-blue-600" size={24} />
+                {!isEditing && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 border-dashed border-2 flex flex-col items-center justify-center text-center">
+                        <div className="bg-white p-3 rounded-full shadow-sm mb-3">
+                            <Upload className="text-blue-600" size={24} />
+                        </div>
+                        <h3 className="font-semibold text-slate-800">Otomatik Doldur (AI)</h3>
+                        <p className="text-sm text-slate-500 mt-1 max-w-sm">Etik kurul karar dosyanızı (.docx) buraya yükleyerek formu otomatik doldurabilirsiniz.</p>
+                        <button type="button" disabled className="mt-4 px-4 py-2 bg-blue-100 text-blue-400 rounded-lg text-sm font-medium cursor-not-allowed">
+                            Henüz Aktif Değil
+                        </button>
                     </div>
-                    <h3 className="font-semibold text-slate-800">Otomatik Doldur (AI)</h3>
-                    <p className="text-sm text-slate-500 mt-1 max-w-sm">Etik kurul karar dosyanızı (.docx) buraya yükleyerek formu otomatik doldurabilirsiniz.</p>
-                    <button type="button" disabled className="mt-4 px-4 py-2 bg-blue-100 text-blue-400 rounded-lg text-sm font-medium cursor-not-allowed">
-                        Henüz Aktif Değil
-                    </button>
-                </div>
+                )}
 
                 <div className="flex justify-end gap-3 pt-4">
                     <button type="button" onClick={onCancel} className="px-6 py-2 text-slate-600 font-medium hover:bg-slate-100 rounded-lg transition-colors">
@@ -200,7 +234,7 @@ export default function ProjectForm({ onCancel, onSave }) {
                     </button>
                     <button type="submit" className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 shadow-sm transition-colors flex items-center gap-2">
                         <Save size={20} />
-                        Projeyi Kaydet
+                        {isEditing ? 'Projeyi Güncelle' : 'Projeyi Kaydet'}
                     </button>
                 </div>
             </form>
