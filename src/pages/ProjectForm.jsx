@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { Save, X, Plus, Trash2, Upload } from 'lucide-react';
 
+const SPECIES_STRAINS = {
+    'Fare': ['BALB/c', 'C57BL/6', 'CD-1 (ICR)', 'Athymic Nude'],
+    'Sıçan': ['Wistar', 'Sprague Dawley'],
+    'Tavşan': ['New Zealand White']
+};
+
 export default function ProjectForm({ onCancel, onSave }) {
     const [formData, setFormData] = useState({
         title: '',
@@ -9,19 +15,23 @@ export default function ProjectForm({ onCancel, onSave }) {
         startDate: '',
         endDate: '',
         ethicsDate: '',
-        quotas: [{ species: 'Mouse', strain: 'C57BL/6', count: 0 }]
+        quotas: [{ species: 'Fare', strain: 'BALB/c', sex: 'Erkek', count: 0, used: 0 }]
     });
 
     const handleQuotaChange = (index, field, value) => {
         const newQuotas = [...formData.quotas];
         newQuotas[index][field] = value;
+        // Reset strain if species changes to ensure validity
+        if (field === 'species') {
+            newQuotas[index].strain = SPECIES_STRAINS[value][0];
+        }
         setFormData({ ...formData, quotas: newQuotas });
     };
 
     const addQuota = () => {
         setFormData({
             ...formData,
-            quotas: [...formData.quotas, { species: 'Mouse', strain: '', count: 0 }]
+            quotas: [...formData.quotas, { species: 'Fare', strain: 'BALB/c', sex: 'Erkek', count: 0, used: 0 }]
         });
     };
 
@@ -127,20 +137,33 @@ export default function ProjectForm({ onCancel, onSave }) {
                                         onChange={e => handleQuotaChange(idx, 'species', e.target.value)}
                                         className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                                     >
-                                        <option>Mouse</option>
-                                        <option>Rat</option>
-                                        <option>Rabbit</option>
+                                        {Object.keys(SPECIES_STRAINS).map(s => (
+                                            <option key={s} value={s}>{s}</option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className="flex-1">
                                     <label className="block text-xs font-medium text-slate-500 mb-1">Suş</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={quota.strain}
                                         onChange={e => handleQuotaChange(idx, 'strain', e.target.value)}
                                         className="w-full px-3 py-2 border border-slate-300 rounded-lg"
-                                        placeholder="Örn: C57BL/6"
-                                    />
+                                    >
+                                        {SPECIES_STRAINS[quota.species].map(strain => (
+                                            <option key={strain} value={strain}>{strain}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="w-28">
+                                    <label className="block text-xs font-medium text-slate-500 mb-1">Cinsiyet</label>
+                                    <select
+                                        value={quota.sex}
+                                        onChange={e => handleQuotaChange(idx, 'sex', e.target.value)}
+                                        className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                                    >
+                                        <option value="Erkek">Erkek</option>
+                                        <option value="Dişi">Dişi</option>
+                                    </select>
                                 </div>
                                 <div className="w-24">
                                     <label className="block text-xs font-medium text-slate-500 mb-1">Sayı</label>
