@@ -42,35 +42,53 @@ export default function ProjectList({ onNewProject, projects = [] }) {
             </div>
 
             {/* List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredProjects.map((project) => (
-                    <div key={project.id} className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col gap-4">
-                        <div className="flex justify-between items-start">
-                            <div className="bg-blue-50 text-blue-700 font-semibold px-3 py-1 rounded-md text-sm">
-                                {project.code}
-                            </div>
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${project.status === 'Active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
-                                }`}>
-                                {project.status === 'Active' ? 'Aktif' : 'Süresi Dolmuş'}
-                            </span>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-slate-600">
+                        <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th className="px-6 py-4 whitespace-nowrap">Proje Kodu</th>
+                                <th className="px-6 py-4">Proje Adı</th>
+                                <th className="px-6 py-4 whitespace-nowrap">Yürütücü</th>
+                                <th className="px-6 py-4 whitespace-nowrap">Başlangıç</th>
+                                <th className="px-6 py-4 whitespace-nowrap">Bitiş</th>
+                                <th className="px-6 py-4 whitespace-nowrap">Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {filteredProjects.map((project) => (
+                                <tr key={project.id} className="hover:bg-slate-50 transition-colors">
+                                    <td className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
+                                        {project.code}
+                                    </td>
+                                    <td className="px-6 py-4 max-w-xs truncate" title={project.title}>
+                                        {project.title}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{project.pi}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{project.startDate}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{project.endDate}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${project.status === 'Active'
+                                            ? 'bg-green-50 text-green-700 border-green-200'
+                                            : 'bg-red-50 text-red-700 border-red-200'
+                                            }`}>
+                                            {project.status === 'Active' ? 'Aktif' : 'Süresi Dolmuş'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                {filteredProjects.length === 0 && (
+                    <div className="p-12 text-center text-slate-500">
+                        <div className="flex justify-center mb-3">
+                            <FileText size={48} className="text-slate-300" />
                         </div>
-
-                        <div>
-                            <h3 className="font-semibold text-slate-800 line-clamp-2">{project.title}</h3>
-                            <p className="text-sm text-slate-500 mt-1">{project.pi}</p>
-                        </div>
-
-                        <div className="border-t border-slate-100 pt-3 mt-auto flex items-center justify-between text-sm text-slate-500">
-                            <div className="flex items-center gap-1.5">
-                                <Calendar size={16} />
-                                <span>Bitiş: {project.endDate}</span>
-                            </div>
-                            {project.status === 'Expired' && (
-                                <AlertCircle size={16} className="text-red-500" />
-                            )}
-                        </div>
+                        <p className="text-lg font-medium text-slate-700">Kayıtlı proje bulunamadı</p>
+                        <p className="text-sm">Yeni bir proje ekleyerek başlayabilirsiniz.</p>
                     </div>
-                ))}
+                )}
             </div>
         </div>
     );
