@@ -11,6 +11,7 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
     const [formData, setFormData] = useState(initialData || {
         title: '',
         code: '',
+        protocol: '',
         pi: '',
         startDate: '',
         endDate: '',
@@ -88,13 +89,23 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Proje Kodu (Etik No)</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Etik No</label>
                             <input
                                 required
                                 type="text"
                                 value={formData.code}
                                 onChange={e => setFormData({ ...formData, code: e.target.value })}
                                 placeholder="Örn: 2024/001"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Protokol No</label>
+                            <input
+                                type="text"
+                                value={formData.protocol || ''}
+                                onChange={e => setFormData({ ...formData, protocol: e.target.value })}
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             />
                         </div>

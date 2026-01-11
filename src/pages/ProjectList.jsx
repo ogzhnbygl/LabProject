@@ -33,7 +33,7 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                     <input
                         type="text"
-                        placeholder="Proje kodu, başlık veya yürütücü ara..."
+                        placeholder="Etik no, başlık veya yürütücü ara..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
@@ -47,7 +47,7 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                     <table className="w-full text-left text-sm text-slate-600">
                         <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
                             <tr>
-                                <th className="px-6 py-4 whitespace-nowrap">Proje Kodu</th>
+                                <th className="px-6 py-4 whitespace-nowrap">Etik No</th>
                                 <th className="px-6 py-4">Proje Adı</th>
                                 <th className="px-6 py-4 whitespace-nowrap">Yürütücü</th>
                                 <th className="px-6 py-4 whitespace-nowrap">Başlangıç</th>
