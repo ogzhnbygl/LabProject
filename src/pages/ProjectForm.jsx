@@ -164,7 +164,12 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                 {/* Quotas */}
                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
                     <div className="flex justify-between items-center border-b pb-2">
-                        <h3 className="text-lg font-semibold text-slate-700">Hayvan Kotaları</h3>
+                        <div className="flex items-center gap-3">
+                            <h3 className="text-lg font-semibold text-slate-700">Hayvan Kotaları</h3>
+                            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                                {formData.quotas.reduce((acc, q) => acc + (parseInt(q.used) || 0), 0)} / {formData.quotas.reduce((acc, q) => acc + (parseInt(q.count) || 0), 0)}
+                            </span>
+                        </div>
                         <button type="button" onClick={addQuota} className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
                             <Plus size={16} /> Ekle
                         </button>
