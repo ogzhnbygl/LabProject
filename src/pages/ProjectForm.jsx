@@ -15,7 +15,8 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
         pi: '',
         startDate: '',
         endDate: '',
-        ethicsDate: '',
+        ethicsStartDate: '',
+        ethicsEndDate: '',
         status: 'Active',
         quotas: [{ species: 'Fare', strain: 'BALB/c', sex: 'Erkek', count: 0, used: 0 }]
     });
@@ -72,10 +73,10 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Basic Info */}
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                    <h3 className="text-lg font-semibold text-slate-700 border-b pb-2">Proje Künyesi</h3>
 
+                {/* 1. Bölüm: Proje Bilgileri (Başlık ve Yürütücü) */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 className="text-lg font-semibold text-slate-700 border-b pb-2">Proje Bilgileri</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-slate-700 mb-1">Proje Başlığı</label>
@@ -87,7 +88,23 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             />
                         </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Yürütücü (PI)</label>
+                            <input
+                                required
+                                type="text"
+                                value={formData.pi}
+                                onChange={e => setFormData({ ...formData, pi: e.target.value })}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                            />
+                        </div>
+                    </div>
+                </div>
 
+                {/* 2. Bölüm: Etik Kurul Bilgileri */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 className="text-lg font-semibold text-slate-700 border-b pb-2">Etik Kurul Bilgileri</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Etik No</label>
                             <input
@@ -99,7 +116,6 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             />
                         </div>
-
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Protokol No</label>
                             <input
@@ -109,42 +125,53 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             />
                         </div>
-
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Yürütücü (PI)</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Etik Başlangıç Tarihi</label>
                             <input
                                 required
-                                type="text"
-                                value={formData.pi}
-                                onChange={e => setFormData({ ...formData, pi: e.target.value })}
+                                type="date"
+                                value={formData.ethicsStartDate || ''}
+                                onChange={e => setFormData({ ...formData, ethicsStartDate: e.target.value })}
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             />
                         </div>
-
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Başlangıç Tarihi</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Etik Bitiş Tarihi</label>
                             <input
                                 required
+                                type="date"
+                                value={formData.ethicsEndDate || ''}
+                                onChange={e => setFormData({ ...formData, ethicsEndDate: e.target.value })}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* 3. Bölüm: Proje Zamanlaması ve Durum */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 className="text-lg font-semibold text-slate-700 border-b pb-2">Proje Zamanlaması ve Durum</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Proje Başlangıç Tarihi</label>
+                            <input
                                 type="date"
                                 value={formData.startDate}
                                 onChange={e => setFormData({ ...formData, startDate: e.target.value })}
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             />
                         </div>
-
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Bitiş Tarihi</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Proje Bitiş Tarihi</label>
                             <input
-                                required
                                 type="date"
                                 value={formData.endDate}
                                 onChange={e => setFormData({ ...formData, endDate: e.target.value })}
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             />
                         </div>
-
                         {isEditing && (
-                            <div>
+                            <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Durum</label>
                                 <select
                                     value={formData.status || 'Active'}
@@ -161,7 +188,7 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                     </div>
                 </div>
 
-                {/* Quotas */}
+                {/* Quotas - Değişmedi */}
                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
                     <div className="flex justify-between items-center border-b pb-2">
                         <div className="flex items-center gap-3">

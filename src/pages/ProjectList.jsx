@@ -5,11 +5,14 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
     const [searchTerm, setSearchTerm] = useState('');
 
     // Filter projects
-    const filteredProjects = projects.filter(p =>
-        p.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.pi.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Filter and Sort projects
+    const filteredProjects = projects
+        .filter(p =>
+            p.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.pi.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .sort((a, b) => b.code.localeCompare(a.code)); // Sort by Etik No (Code) Descending
 
     return (
         <div className="space-y-6">
@@ -50,8 +53,8 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                                 <th className="px-6 py-4 whitespace-nowrap">Etik No</th>
                                 <th className="px-6 py-4">Proje Adı</th>
                                 <th className="px-6 py-4 whitespace-nowrap">Yürütücü</th>
-                                <th className="px-6 py-4 whitespace-nowrap">Başlangıç</th>
-                                <th className="px-6 py-4 whitespace-nowrap">Bitiş</th>
+                                <th className="px-6 py-4 whitespace-nowrap">Etik Başlangıç</th>
+                                <th className="px-6 py-4 whitespace-nowrap">Etik Bitiş</th>
                                 <th className="px-6 py-4 whitespace-nowrap">Durum</th>
                             </tr>
                         </thead>
@@ -69,8 +72,8 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                                         {project.title}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">{project.pi}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">{project.startDate}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">{project.endDate}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{project.ethicsStartDate || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{project.ethicsEndDate || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${project.status === 'Active'
                                             ? 'bg-green-50 text-green-700 border-green-200'
