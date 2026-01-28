@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, X, Plus, Trash2 } from 'lucide-react';
+import { Save, X, Plus, Trash2, Check } from 'lucide-react';
 
 const SPECIES_STRAINS = {
     'Fare': ['BALB/c', 'C57BL/6', 'CD-1 (ICR)', 'Athymic Nude'],
@@ -18,6 +18,8 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
         ethicsStartDate: '',
         ethicsEndDate: '',
         status: 'Active',
+        workRulesForm: false,
+        projectNotebook: false,
         quotas: [{ species: 'Fare', strain: 'BALB/c', sex: 'Erkek', count: 0, used: 0 }]
     });
 
@@ -171,18 +173,57 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                                 />
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Durum</label>
-                                <select
-                                    value={formData.status || 'Active'}
-                                    onChange={e => setFormData({ ...formData, status: e.target.value })}
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                                >
-                                    <option value="Active">Aktif</option>
-                                    <option value="Continuing">Devam Ediyor</option>
-                                    <option value="Completed">Tamamlandı</option>
-                                    <option value="Cancelled">İptal Edildi</option>
-                                    <option value="Expired">Süresi Dolmuş</option>
-                                </select>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Status Section */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-2">Durum</label>
+                                        <select
+                                            value={formData.status || 'Active'}
+                                            onChange={e => setFormData({ ...formData, status: e.target.value })}
+                                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                        >
+                                            <option value="Active">Aktif</option>
+                                            <option value="Continuing">Devam Ediyor</option>
+                                            <option value="Completed">Tamamlandı</option>
+                                            <option value="Cancelled">İptal Edildi</option>
+                                            <option value="Expired">Süresi Dolmuş</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Compliance Section */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-2">Kontroller</label>
+                                        <div className="flex gap-3">
+                                            <div
+                                                onClick={() => setFormData({ ...formData, workRulesForm: !formData.workRulesForm })}
+                                                className={`flex-1 flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${formData.workRulesForm
+                                                        ? 'bg-blue-50 border-blue-500 text-blue-700'
+                                                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                                                    }`}
+                                            >
+                                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.workRulesForm ? 'bg-blue-500 border-blue-500' : 'border-slate-300 bg-white'
+                                                    }`}>
+                                                    {formData.workRulesForm && <Check size={14} className="text-white" />}
+                                                </div>
+                                                <span className="text-sm font-medium select-none">Çalışma Kuralları</span>
+                                            </div>
+
+                                            <div
+                                                onClick={() => setFormData({ ...formData, projectNotebook: !formData.projectNotebook })}
+                                                className={`flex-1 flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${formData.projectNotebook
+                                                        ? 'bg-blue-50 border-blue-500 text-blue-700'
+                                                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                                                    }`}
+                                            >
+                                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.projectNotebook ? 'bg-blue-500 border-blue-500' : 'border-slate-300 bg-white'
+                                                    }`}>
+                                                    {formData.projectNotebook && <Check size={14} className="text-white" />}
+                                                </div>
+                                                <span className="text-sm font-medium select-none">Proje Defteri</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -238,6 +279,7 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                                     >
                                         <option value="Erkek">Erkek</option>
                                         <option value="Dişi">Dişi</option>
+                                        <option value="Erkek ve Dişi">Erkek ve Dişi</option>
                                     </select>
                                 </div>
                                 <div className="w-24">
