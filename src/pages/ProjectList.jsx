@@ -75,15 +75,19 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                                     <td className="px-6 py-4 whitespace-nowrap">{project.ethicsStartDate || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">{project.ethicsEndDate || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${project.status === 'Active'
-                                            ? 'bg-green-50 text-green-700 border-green-200'
-                                            : project.status === 'Completed'
-                                                ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                                : 'bg-red-50 text-red-700 border-red-200'
+                                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${project.status === 'Active' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                project.status === 'Continuing' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                    project.status === 'Completed' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                        project.status === 'Cancelled' ? 'bg-slate-50 text-slate-700 border-slate-200' :
+                                                            'bg-red-50 text-red-700 border-red-200'
                                             }`}>
-                                            {project.status === 'Active' ? 'Aktif'
-                                                : project.status === 'Completed' ? 'Tamamlandı'
-                                                    : 'Süresi Dolmuş'}
+                                            {
+                                                project.status === 'Active' ? 'Aktif' :
+                                                    project.status === 'Continuing' ? 'Devam Ediyor' :
+                                                        project.status === 'Completed' ? 'Tamamlandı' :
+                                                            project.status === 'Cancelled' ? 'İptal Edildi' :
+                                                                'Süresi Dolmuş'
+                                            }
                                         </span>
                                     </td>
                                 </tr>

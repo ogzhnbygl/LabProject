@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, X, Plus, Trash2, Upload } from 'lucide-react';
+import { Save, X, Plus, Trash2 } from 'lucide-react';
 
 const SPECIES_STRAINS = {
     'Fare': ['BALB/c', 'C57BL/6', 'CD-1 (ICR)', 'Athymic Nude'],
@@ -148,29 +148,28 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                     </div>
                 </div>
 
-                {/* 3. Bölüm: Proje Zamanlaması ve Durum */}
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                    <h3 className="text-lg font-semibold text-slate-700 border-b pb-2">Proje Zamanlaması ve Durum</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Proje Başlangıç Tarihi</label>
-                            <input
-                                type="date"
-                                value={formData.startDate}
-                                onChange={e => setFormData({ ...formData, startDate: e.target.value })}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Proje Bitiş Tarihi</label>
-                            <input
-                                type="date"
-                                value={formData.endDate}
-                                onChange={e => setFormData({ ...formData, endDate: e.target.value })}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                            />
-                        </div>
-                        {isEditing && (
+                {isEditing && (
+                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 className="text-lg font-semibold text-slate-700 border-b pb-2">Proje Zamanlaması ve Durum</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Proje Başlangıç Tarihi</label>
+                                <input
+                                    type="date"
+                                    value={formData.startDate}
+                                    onChange={e => setFormData({ ...formData, startDate: e.target.value })}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Proje Bitiş Tarihi</label>
+                                <input
+                                    type="date"
+                                    value={formData.endDate}
+                                    onChange={e => setFormData({ ...formData, endDate: e.target.value })}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                />
+                            </div>
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Durum</label>
                                 <select
@@ -179,14 +178,15 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                                 >
                                     <option value="Active">Aktif</option>
+                                    <option value="Continuing">Devam Ediyor</option>
                                     <option value="Completed">Tamamlandı</option>
-                                    <option value="Expired">Süresi Dolmuş</option>
                                     <option value="Cancelled">İptal Edildi</option>
+                                    <option value="Expired">Süresi Dolmuş</option>
                                 </select>
                             </div>
-                        )}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Quotas - Değişmedi */}
                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
@@ -257,19 +257,7 @@ export default function ProjectForm({ onCancel, onSave, onDelete, initialData })
                     </div>
                 </div>
 
-                {/* AI Upload Placeholder */}
-                {!isEditing && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 border-dashed border-2 flex flex-col items-center justify-center text-center">
-                        <div className="bg-white p-3 rounded-full shadow-sm mb-3">
-                            <Upload className="text-blue-600" size={24} />
-                        </div>
-                        <h3 className="font-semibold text-slate-800">Otomatik Doldur (AI)</h3>
-                        <p className="text-sm text-slate-500 mt-1 max-w-sm">Etik kurul karar dosyanızı (.docx) buraya yükleyerek formu otomatik doldurabilirsiniz.</p>
-                        <button type="button" disabled className="mt-4 px-4 py-2 bg-blue-100 text-blue-400 rounded-lg text-sm font-medium cursor-not-allowed">
-                            Henüz Aktif Değil
-                        </button>
-                    </div>
-                )}
+
 
                 <div className="flex justify-end gap-3 pt-4">
                     <button type="button" onClick={onCancel} className="px-6 py-2 text-slate-600 font-medium hover:bg-slate-100 rounded-lg transition-colors">
