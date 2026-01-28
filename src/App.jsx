@@ -91,9 +91,19 @@ function App() {
 
     if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
 
-    const onProjectClick = (project) => {
-        setEditingProject(project);
-        setCurrentView('edit-project');
+    const onProjectClick = async (projectSummary) => {
+        try {
+            // Fetch full project details since list only has summary
+            const res = await fetch(`/api/projects?id=${projectSummary.id}`);
+            if (!res.ok) throw new Error('Failed to fetch project details');
+            const fullProject = await res.json();
+
+            setEditingProject(fullProject);
+            setCurrentView('edit-project');
+        } catch (e) {
+            console.error(e);
+            alert('Proje detayları yüklenirken bir hata oluştu');
+        }
     };
 
     return (

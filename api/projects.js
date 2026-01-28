@@ -9,8 +9,28 @@ export default async function handler(req, res) {
     switch (req.method) {
         case 'GET':
             try {
-                // Return all projects sorted by creation date (newest first)
-                const projects = await collection.find({}).sort({ _id: -1 }).toArray();
+                const { id } = req.query;
+
+                if (id) {
+                    const project = await collection.findOne({ _id: new ObjectId(id) });
+                    if (!project) return res.status(404).json({ error: 'Project not found' });
+                    return res.status(200).json({ ...project, id: project._id.toString() });
+                }
+
+                // Return all projects summary sorted by creation date (Projection Applied)
+                const projects = await collection.find({})
+                    .project({
+                        title: 1,
+                        code: 1,
+                        pi: 1,
+                        ethicsStartDate: 1,
+                        ethicsEndDate: 1,
+                        status: 1,
+                        createdAt: 1
+                    })
+                    .sort({ _id: -1 })
+                    .toArray();
+
                 const formatted = projects.map(p => ({
                     ...p,
                     id: p._id.toString()
