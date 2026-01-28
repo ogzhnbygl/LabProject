@@ -9,6 +9,7 @@ function App() {
     const [currentView, setCurrentView] = useState('projects');
     const [projects, setProjects] = useState([]);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [paginationState, setPaginationState] = useState({ currentPage: 1, itemsPerPage: 10 });
     const [editingProject, setEditingProject] = useState(null);
 
     // Auth check logic (Proxy to Apex)
@@ -37,6 +38,7 @@ function App() {
             if (res.ok) {
                 setRefreshTrigger(prev => prev + 1);
                 setCurrentView('projects');
+                setPaginationState(prev => ({ ...prev, currentPage: 1 })); // Reset to first page on new project
             } else {
                 alert('Error saving project');
             }
@@ -92,17 +94,21 @@ function App() {
     if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
 
     const onProjectClick = async (projectSummary) => {
+        console.log('Fetching details for:', projectSummary.id); // Debug log
         try {
             // Fetch full project details since list only has summary
             const res = await fetch(`/api/projects?id=${projectSummary.id}`);
-            if (!res.ok) throw new Error('Failed to fetch project details');
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || 'Failed to fetch project details');
+            }
             const fullProject = await res.json();
 
             setEditingProject(fullProject);
             setCurrentView('edit-project');
         } catch (e) {
             console.error(e);
-            alert('Proje detayları yüklenirken bir hata oluştu');
+            alert(`Proje detayları yüklenirken hata: ${e.message}`);
         }
     };
 
@@ -116,6 +122,8 @@ function App() {
                         setCurrentView('new-project');
                     }}
                     onProjectClick={onProjectClick}
+                    paginationState={paginationState}
+                    setPaginationState={setPaginationState}
                 />
             )}
             {currentView === 'new-project' && (

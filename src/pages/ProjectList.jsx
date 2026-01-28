@@ -1,8 +1,25 @@
 import React, { useState } from 'react';
-import { Plus, Search, Calendar, AlertCircle, FileText } from 'lucide-react';
+import { Plus, Search, Calendar, AlertCircle, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 
-export default function ProjectList({ onNewProject, projects = [], onProjectClick }) {
+export default function ProjectList({ onNewProject, projects = [], onProjectClick, paginationState, setPaginationState }) {
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Use props for persistence, fallback to local defaults if not provided (safety)
+    const currentPage = paginationState?.currentPage || 1;
+    const itemsPerPage = paginationState?.itemsPerPage || 10;
+
+    const setCurrentPage = (pageOrFn) => {
+        if (!setPaginationState) return;
+        setPaginationState(prev => {
+            const newPage = typeof pageOrFn === 'function' ? pageOrFn(prev.currentPage) : pageOrFn;
+            return { ...prev, currentPage: newPage };
+        });
+    };
+
+    const setItemsPerPage = (size) => {
+        if (!setPaginationState) return;
+        setPaginationState(prev => ({ ...prev, itemsPerPage: size, currentPage: 1 }));
+    };
 
     // Filter projects
     // Filter and Sort projects
@@ -13,6 +30,12 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
             p.pi.toLowerCase().includes(searchTerm.toLowerCase())
         )
         .sort((a, b) => b.code.localeCompare(a.code, undefined, { numeric: true })); // Sort by Etik No (Code) Descending
+
+    const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+    const paginatedProjects = filteredProjects.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     return (
         <div className="space-y-6">
@@ -59,7 +82,7 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {filteredProjects.map((project) => (
+                            {paginatedProjects.map((project) => (
                                 <tr
                                     key={project.id}
                                     onClick={() => onProjectClick && onProjectClick(project)}
@@ -76,10 +99,10 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                                     <td className="px-6 py-4 whitespace-nowrap">{project.ethicsEndDate || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${project.status === 'Active' ? 'bg-green-50 text-green-700 border-green-200' :
-                                                project.status === 'Continuing' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                                                    project.status === 'Completed' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                                        project.status === 'Cancelled' ? 'bg-slate-50 text-slate-700 border-slate-200' :
-                                                            'bg-red-50 text-red-700 border-red-200'
+                                            project.status === 'Continuing' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                project.status === 'Completed' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                    project.status === 'Cancelled' ? 'bg-slate-50 text-slate-700 border-slate-200' :
+                                                        'bg-red-50 text-red-700 border-red-200'
                                             }`}>
                                             {
                                                 project.status === 'Active' ? 'Aktif' :
@@ -102,6 +125,49 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                         </div>
                         <p className="text-lg font-medium text-slate-700">Kayıtlı proje bulunamadı</p>
                         <p className="text-sm">Yeni bir proje ekleyerek başlayabilirsiniz.</p>
+                    </div>
+                )}
+
+                {/* Pagination */}
+                {filteredProjects.length > 0 && (
+                    <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200">
+                        <div className="flex items-center gap-6 text-sm text-slate-600">
+                            <div className="flex items-center gap-3">
+                                <span className="text-slate-500">Sayfa başına satır:</span>
+                                <select
+                                    value={itemsPerPage}
+                                    onChange={(e) => {
+                                        setItemsPerPage(Number(e.target.value));
+                                        setCurrentPage(1);
+                                    }}
+                                    className="border border-slate-300 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-blue-500 cursor-pointer"
+                                >
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                </select>
+                            </div>
+                            <span className="text-slate-500">Toplam <span className="font-medium text-slate-700">{filteredProjects.length}</span> kayıt</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="p-1 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            <span className="text-sm font-medium text-slate-700 w-16 text-center">
+                                {currentPage} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="p-1 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

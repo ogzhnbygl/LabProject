@@ -12,6 +12,9 @@ export default async function handler(req, res) {
                 const { id } = req.query;
 
                 if (id) {
+                    if (!ObjectId.isValid(id)) {
+                        return res.status(400).json({ error: 'Invalid Project ID format' });
+                    }
                     const project = await collection.findOne({ _id: new ObjectId(id) });
                     if (!project) return res.status(404).json({ error: 'Project not found' });
                     return res.status(200).json({ ...project, id: project._id.toString() });
