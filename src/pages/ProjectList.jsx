@@ -12,7 +12,7 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
             p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             p.pi.toLowerCase().includes(searchTerm.toLowerCase())
         )
-        .sort((a, b) => b.code.localeCompare(a.code)); // Sort by Etik No (Code) Descending
+        .sort((a, b) => b.code.localeCompare(a.code, undefined, { numeric: true })); // Sort by Etik No (Code) Descending
 
     return (
         <div className="space-y-6">
