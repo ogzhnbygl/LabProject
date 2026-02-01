@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import ProjectList from './pages/ProjectList';
 import ProjectForm from './pages/ProjectForm';
+import ProjectReports from './pages/ProjectReports';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -142,6 +143,9 @@ function App() {
             )}
             {currentView === 'timeline' && (
                 <div className="text-center text-slate-500 mt-10">Takvim Özelliği Yapım Aşamasında</div>
+            )}
+            {currentView === 'reports' && (
+                <ProjectReports projects={projects} />
             )}
         </Layout>
     );

@@ -37,6 +37,15 @@ export function Layout({ children, currentView, onViewChange }) {
                             >
                                 Takvim
                             </button>
+                            <button
+                                onClick={() => onViewChange('reports')}
+                                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${currentView === 'reports'
+                                    ? 'bg-white text-blue-600 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700'
+                                    }`}
+                            >
+                                Raporlar
+                            </button>
                         </nav>
 
                         {/* User Profile & Logout */}
