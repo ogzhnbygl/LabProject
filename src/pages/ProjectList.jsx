@@ -1,8 +1,24 @@
-import React, { useState } from 'react';
-import { Plus, Search, Calendar, AlertCircle, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Plus, Search, Calendar, AlertCircle, FileText, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
 
 export default function ProjectList({ onNewProject, projects = [], onProjectClick, paginationState, setPaginationState }) {
     const [searchTerm, setSearchTerm] = useState('');
+
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const filterRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (filterRef.current && !filterRef.current.contains(event.target)) {
+                setIsFilterOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     // Use props for persistence, fallback to local defaults if not provided (safety)
     const currentPage = paginationState?.currentPage || 1;
@@ -22,13 +38,18 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
     };
 
     // Filter projects
-    // Filter and Sort projects
     const filteredProjects = projects
-        .filter(p =>
-            p.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.pi.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        .filter(p => {
+            const matchesSearch = p.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                p.pi.toLowerCase().includes(searchTerm.toLowerCase());
+
+            if (statusFilter === 'All') return matchesSearch;
+            if (statusFilter === 'Expired') {
+                return matchesSearch && !['Active', 'Continuing', 'Completed', 'Cancelled'].includes(p.status);
+            }
+            return matchesSearch && p.status === statusFilter;
+        })
         .sort((a, b) => b.code.localeCompare(a.code, undefined, { numeric: true })); // Sort by Etik No (Code) Descending
 
     const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
@@ -78,7 +99,47 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                                 <th className="px-6 py-4 whitespace-nowrap">Yürütücü</th>
                                 <th className="px-6 py-4 whitespace-nowrap">Etik Başlangıç</th>
                                 <th className="px-6 py-4 whitespace-nowrap">Etik Bitiş</th>
-                                <th className="px-6 py-4 whitespace-nowrap">Durum</th>
+                                <th className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex items-center gap-2">
+                                        <span>Durum</span>
+                                        <div ref={filterRef} className="relative">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setIsFilterOpen(!isFilterOpen);
+                                                }}
+                                                className={`p-1 rounded-md hover:bg-slate-200 transition-colors ${statusFilter !== 'All' ? 'bg-blue-50 text-blue-600' : 'text-slate-400'}`}
+                                            >
+                                                <Filter size={16} />
+                                            </button>
+                                            {isFilterOpen && (
+                                                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 z-50">
+                                                    <div className="flex justify-between items-center p-3 border-b border-slate-100">
+                                                        <span className="text-xs font-semibold text-slate-500">DURUMU FİLTRELE</span>
+                                                        <button onClick={() => setIsFilterOpen(false)} className="text-slate-400 hover:text-slate-600">
+                                                            <X size={16} />
+                                                        </button>
+                                                    </div>
+                                                    <div className="p-3">
+                                                        <select
+                                                            value={statusFilter}
+                                                            onChange={(e) => setStatusFilter(e.target.value)}
+                                                            className="w-full border border-slate-200 rounded-md p-2 text-sm focus:outline-none focus:border-blue-500 bg-white text-slate-700"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            <option value="All">Tümü</option>
+                                                            <option value="Active">Aktif</option>
+                                                            <option value="Continuing">Devam Ediyor</option>
+                                                            <option value="Completed">Tamamlandı</option>
+                                                            <option value="Cancelled">İptal Edildi</option>
+                                                            <option value="Expired">Süresi Dolmuş</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
