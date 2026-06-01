@@ -3,6 +3,7 @@ import { Layout } from './components/Layout';
 import ProjectList from './pages/ProjectList';
 import ProjectForm from './pages/ProjectForm';
 import ProjectReports from './pages/ProjectReports';
+import ProjectCalendar from './pages/ProjectCalendar';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -142,7 +143,7 @@ function App() {
                 />
             )}
             {currentView === 'timeline' && (
-                <div className="text-center text-slate-500 mt-10">Takvim Özelliği Yapım Aşamasında</div>
+                <ProjectCalendar />
             )}
             {currentView === 'reports' && (
                 <ProjectReports projects={projects} />

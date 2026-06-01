@@ -52,6 +52,24 @@ export default async function handler(req, res) {
 
                 // Save to DB
                 const result = await collection.insertOne(newProject);
+
+                // Calendar synchronization
+                if (newProject.startDate && newProject.endDate) {
+                    const colors = ['#3B82F6', '#10B981', '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4'];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+                    await db.collection('calendar').insertOne({
+                        projectId: result.insertedId,
+                        title: newProject.title,
+                        pi: newProject.pi,
+                        code: newProject.code,
+                        startDate: newProject.startDate,
+                        endDate: newProject.endDate,
+                        color: randomColor,
+                        createdAt: new Date()
+                    });
+                }
+
                 res.status(201).json({ ...newProject, id: result.insertedId.toString() });
             } catch (e) {
                 res.status(500).json({ error: e.message });
@@ -68,6 +86,43 @@ export default async function handler(req, res) {
                     { _id: new ObjectId(id) },
                     { $set: updateData }
                 );
+
+                // Calendar synchronization
+                if (updateData.startDate && updateData.endDate) {
+                    const existingEvent = await db.collection('calendar').findOne({ projectId: new ObjectId(id) });
+                    if (existingEvent) {
+                        await db.collection('calendar').updateOne(
+                            { projectId: new ObjectId(id) },
+                            {
+                                $set: {
+                                    title: updateData.title || existingEvent.title,
+                                    pi: updateData.pi || existingEvent.pi,
+                                    code: updateData.code || existingEvent.code,
+                                    startDate: updateData.startDate,
+                                    endDate: updateData.endDate
+                                }
+                            }
+                        );
+                    } else {
+                        const colors = ['#3B82F6', '#10B981', '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4'];
+                        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+                        await db.collection('calendar').insertOne({
+                            projectId: new ObjectId(id),
+                            title: updateData.title || '',
+                            pi: updateData.pi || '',
+                            code: updateData.code || '',
+                            startDate: updateData.startDate,
+                            endDate: updateData.endDate,
+                            color: randomColor,
+                            createdAt: new Date()
+                        });
+                    }
+                } else if (updateData.startDate === '' || updateData.endDate === '') {
+                    // Dates removed
+                    await db.collection('calendar').deleteOne({ projectId: new ObjectId(id) });
+                }
+
                 res.status(200).json({ success: true });
             } catch (e) {
                 res.status(500).json({ error: e.message });
@@ -80,6 +135,10 @@ export default async function handler(req, res) {
                 if (!id) return res.status(400).json({ error: 'ID required' });
 
                 const result = await collection.deleteOne({ _id: new ObjectId(id) });
+                
+                // Calendar synchronization
+                await db.collection('calendar').deleteOne({ projectId: new ObjectId(id) });
+
                 if (result.deletedCount === 1) {
                     res.status(200).json({ success: true });
                 } else {
