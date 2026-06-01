@@ -12,9 +12,22 @@ export default function ProjectCalendar() {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [user, setUser] = useState(null);
+    const [syncing, setSyncing] = useState(false);
 
-    // Fetch calendar events
+    // Fetch user session on load to determine if admin
     useEffect(() => {
+        fetch('/api/auth/session')
+            .then(res => res.json())
+            .then(data => {
+                if (data && !data.error) {
+                    setUser(data);
+                }
+            })
+            .catch(err => console.error('Failed to fetch session:', err));
+    }, []);
+
+    const fetchEvents = () => {
         setLoading(true);
         fetch('/api/calendar')
             .then(res => res.json())
@@ -25,7 +38,39 @@ export default function ProjectCalendar() {
             })
             .catch(err => console.error('Failed to fetch calendar events:', err))
             .finally(() => setLoading(false));
+    };
+
+    // Fetch calendar events
+    useEffect(() => {
+        fetchEvents();
     }, []);
+
+    const handleSyncCalendar = async () => {
+        if (!confirm('Bütün projelerin tarih aralıklarını yeniden hesaplayıp takvimi senkronize etmek istediğinize emin misiniz? (Mevcut takvim temizlenip projelerden baştan oluşturulacaktır)')) {
+            return;
+        }
+
+        try {
+            setSyncing(true);
+            const res = await fetch('/api/calendar', {
+                method: 'POST'
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert(data.message || 'Senkronizasyon başarıyla tamamlandı!');
+                fetchEvents(); // Reload calendar grid
+            } else {
+                throw new Error(data.error || 'Senkronizasyon başarısız oldu.');
+            }
+        } catch (error) {
+            console.error('Sync error:', error);
+            alert(error.message || 'Senkronizasyon işlemi sırasında hata oluştu.');
+        } finally {
+            setSyncing(false);
+        }
+    };
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -325,6 +370,32 @@ export default function ProjectCalendar() {
                             );
                         })}
                     </div>
+                </div>
+            )}
+
+            {/* Admin Migration Sync Bar */}
+            {user?.role === 'admin' && (
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center justify-between gap-4 mt-6">
+                    <div className="flex items-center gap-2 text-slate-600 text-sm">
+                        <AlertCircle size={16} className="text-amber-500 shrink-0" />
+                        <span>Sistem Yöneticisi: Takvimi veritabanındaki mevcut projelerin tüm tarih verileriyle yeniden eşitleyebilirsiniz.</span>
+                    </div>
+                    <button
+                        onClick={handleSyncCalendar}
+                        disabled={syncing}
+                        className={`px-4 py-2 bg-slate-950 text-white font-semibold rounded-lg text-xs hover:bg-slate-800 transition-all shadow-sm shrink-0 flex items-center gap-1.5 ${
+                            syncing ? 'opacity-70 cursor-not-allowed' : ''
+                        }`}
+                    >
+                        {syncing ? (
+                            <>
+                                <div className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                                Eşitleniyor...
+                            </>
+                        ) : (
+                            'Takvimi Senkronize Et (Full Sync)'
+                        )}
+                    </button>
                 </div>
             )}
         </div>
