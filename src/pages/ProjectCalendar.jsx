@@ -11,7 +11,7 @@ export default function ProjectCalendar() {
     const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 1)); // Default to June 2026 matching system time
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [hoveredEvent, setHoveredEvent] = useState(null);
+    const [selectedEvent, setSelectedEvent] = useState(null);
 
     // Fetch calendar events
     useEffect(() => {
@@ -170,21 +170,61 @@ export default function ProjectCalendar() {
                 </div>
             </div>
 
-            {/* Event Info Tooltip Card (Displays on Hover) */}
-            {hoveredEvent && (
-                <div className="bg-slate-900 text-white p-4 rounded-xl shadow-lg border border-slate-800 transition-all duration-200 animate-in fade-in slide-in-from-top-1">
-                    <div className="flex justify-between items-start">
-                        <h4 className="font-bold text-base">{hoveredEvent.title}</h4>
-                        <span className="text-xs px-2 py-0.5 rounded bg-white/20 font-mono">{hoveredEvent.code}</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 mt-3 text-xs text-slate-300">
-                        <div className="flex items-center gap-1.5">
-                            <User size={14} className="text-blue-400" />
-                            <span>Yürütücü: <strong>{hoveredEvent.pi}</strong></span>
+            {/* Event Info Popup (Displays on Click with backdrop blur overlay) */}
+            {selectedEvent && (
+                <div 
+                    onClick={() => setSelectedEvent(null)}
+                    className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300 animate-in fade-in"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()} 
+                        className="bg-white text-slate-800 rounded-2xl shadow-2xl border border-slate-100 max-w-lg w-full p-6 space-y-4 animate-in zoom-in-95 duration-150 relative overflow-hidden"
+                    >
+                        {/* Top Accent Strip */}
+                        <div 
+                            style={{ backgroundColor: selectedEvent.color }} 
+                            className="absolute top-0 left-0 right-0 h-2" 
+                        />
+                        
+                        <div className="flex justify-between items-start pt-2">
+                            <div>
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 font-mono">
+                                    <Hash size={12} className="text-slate-400" />
+                                    {selectedEvent.code}
+                                </span>
+                            </div>
+                            <button 
+                                onClick={() => setSelectedEvent(null)}
+                                className="text-slate-400 hover:text-slate-600 rounded-lg p-1 hover:bg-slate-50 transition-colors"
+                            >
+                                <ChevronRight size={18} className="rotate-90" />
+                            </button>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                            <Calendar size={14} className="text-emerald-400" />
-                            <span>Tarih: <strong>{hoveredEvent.startDate} - {hoveredEvent.endDate}</strong></span>
+
+                        <div className="space-y-3">
+                            <h3 className="text-lg font-bold text-slate-900 leading-snug">
+                                {selectedEvent.title}
+                            </h3>
+                            
+                            <hr className="border-slate-100" />
+
+                            <div className="grid grid-cols-1 gap-3 py-1">
+                                <div className="flex items-center gap-2.5 text-sm text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                    <User size={16} className="text-blue-500 shrink-0" />
+                                    <div>
+                                        <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Proje Yürütücüsü (PI)</div>
+                                        <div className="font-semibold text-slate-800">{selectedEvent.pi}</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-2.5 text-sm text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                    <Calendar size={16} className="text-emerald-500 shrink-0" />
+                                    <div>
+                                        <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Çalışma Tarihleri</div>
+                                        <div className="font-semibold text-slate-800">{selectedEvent.startDate} — {selectedEvent.endDate}</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -250,20 +290,22 @@ export default function ProjectCalendar() {
                                                 // Display name on Monday (idx % 7 === 0) or on project start date
                                                 const showName = isProjectStart || day.getDay() === 1;
 
-                                                const isHovered = hoveredEvent?.id === event.id;
+                                                const isSelected = selectedEvent?.id === event.id;
 
                                                 return (
                                                     <div
                                                         key={slotIdx}
-                                                        onMouseEnter={() => setHoveredEvent(event)}
-                                                        onMouseLeave={() => setHoveredEvent(null)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedEvent(event);
+                                                        }}
                                                         style={{ backgroundColor: event.color }}
-                                                        className={`h-7 flex items-center text-[11px] font-bold text-white px-2 cursor-pointer transition-all shadow-sm ${
+                                                        className={`h-7 flex items-center text-[11px] font-bold text-white px-2 cursor-pointer transition-all shadow-sm hover:scale-[1.02] hover:brightness-110 hover:shadow-md hover:z-10 ${
                                                             isProjectStart ? 'rounded-l-lg ml-1' : 'border-l-0'
                                                         } ${
                                                             isProjectEnd ? 'rounded-r-lg mr-1' : 'border-r-0'
                                                         } ${
-                                                            isHovered ? 'scale-[1.02] shadow-md brightness-110 z-10' : ''
+                                                            isSelected ? 'ring-2 ring-white ring-offset-2 scale-[1.02] shadow-md z-10' : ''
                                                         }`}
                                                     >
                                                         {showName && (
