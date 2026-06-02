@@ -13,6 +13,8 @@ function App() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [paginationState, setPaginationState] = useState({ currentPage: 1, itemsPerPage: 10 });
     const [editingProject, setEditingProject] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Auth check logic (Proxy to Apex)
     useEffect(() => {
@@ -41,6 +43,8 @@ function App() {
                 setRefreshTrigger(prev => prev + 1);
                 setCurrentView('projects');
                 setPaginationState(prev => ({ ...prev, currentPage: 1 })); // Reset to first page on new project
+                setStatusFilter('All');
+                setSearchTerm('');
             } else {
                 alert('Error saving project');
             }
@@ -126,6 +130,10 @@ function App() {
                     onProjectClick={onProjectClick}
                     paginationState={paginationState}
                     setPaginationState={setPaginationState}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
                 />
             )}
             {currentView === 'new-project' && (

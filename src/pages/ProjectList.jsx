@@ -1,10 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Search, Calendar, AlertCircle, FileText, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
 
-export default function ProjectList({ onNewProject, projects = [], onProjectClick, paginationState, setPaginationState }) {
-    const [searchTerm, setSearchTerm] = useState('');
-
-    const [statusFilter, setStatusFilter] = useState('All');
+export default function ProjectList({ 
+    onNewProject, 
+    projects = [], 
+    onProjectClick, 
+    paginationState, 
+    setPaginationState, 
+    statusFilter = 'All', 
+    setStatusFilter, 
+    searchTerm = '', 
+    setSearchTerm 
+}) {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const filterRef = useRef(null);
 
@@ -82,7 +89,10 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                         type="text"
                         placeholder="Etik no, başlık veya yürütücü ara..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                     />
                 </div>
@@ -123,7 +133,10 @@ export default function ProjectList({ onNewProject, projects = [], onProjectClic
                                                     <div className="p-3">
                                                         <select
                                                             value={statusFilter}
-                                                            onChange={(e) => setStatusFilter(e.target.value)}
+                                                            onChange={(e) => {
+                                                                setStatusFilter(e.target.value);
+                                                                setCurrentPage(1);
+                                                            }}
                                                             className="w-full border border-slate-200 rounded-md p-2 text-sm focus:outline-none focus:border-blue-500 bg-white text-slate-700"
                                                             onClick={(e) => e.stopPropagation()}
                                                         >
