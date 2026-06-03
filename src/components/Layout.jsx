@@ -1,8 +1,10 @@
-import { FileText, LogOut, Calendar } from 'lucide-react';
+import { FileText, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Link, useLocation } from 'react-router-dom';
 
-export function Layout({ children, currentView, onViewChange }) {
+export function Layout({ children }) {
     const { logout, user } = useAuth();
+    const location = useLocation();
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
@@ -19,33 +21,33 @@ export function Layout({ children, currentView, onViewChange }) {
                     <div className="flex items-center gap-4">
                         {/* Navigation */}
                         <nav className="flex gap-1 bg-slate-100/50 p-1 rounded-lg">
-                            <button
-                                onClick={() => onViewChange('projects')}
-                                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${currentView === 'projects'
+                            <Link
+                                to="/"
+                                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${location.pathname === '/' || location.pathname.startsWith('/edit') || location.pathname === '/new'
                                     ? 'bg-white text-blue-600 shadow-sm'
                                     : 'text-slate-500 hover:text-slate-700'
                                     }`}
                             >
                                 Projeler
-                            </button>
-                            <button
-                                onClick={() => onViewChange('timeline')}
-                                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${currentView === 'timeline'
+                            </Link>
+                            <Link
+                                to="/timeline"
+                                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${location.pathname === '/timeline'
                                     ? 'bg-white text-blue-600 shadow-sm'
                                     : 'text-slate-500 hover:text-slate-700'
                                     }`}
                             >
                                 Takvim
-                            </button>
-                            <button
-                                onClick={() => onViewChange('reports')}
-                                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${currentView === 'reports'
+                            </Link>
+                            <Link
+                                to="/reports"
+                                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${location.pathname === '/reports'
                                     ? 'bg-white text-blue-600 shadow-sm'
                                     : 'text-slate-500 hover:text-slate-700'
                                     }`}
                             >
                                 Raporlar
-                            </button>
+                            </Link>
                         </nav>
 
                         {/* User Profile & Logout */}

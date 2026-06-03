@@ -1,6 +1,24 @@
 import clientPromise from '../lib/mongodb.js';
 import { ObjectId } from 'mongodb';
 import { verifyAuth } from '../lib/auth.js';
+import { z } from 'zod';
+
+const projectPostSchema = z.object({
+    title: z.string().min(1, 'Proje başlığı gereklidir.'),
+    code: z.string().min(1, 'Proje kodu gereklidir.'),
+    pi: z.string().min(1, 'Yürütücü (PI) adı gereklidir.'),
+    ethicsStartDate: z.string().optional(),
+    ethicsEndDate: z.string().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    animalQuota: z.coerce.number().int().nonnegative('Hayvan kotası negatif olamaz.').optional().default(0),
+    budget: z.coerce.number().nonnegative('Bütçe negatif olamaz.').optional().default(0),
+    description: z.string().optional().default('')
+});
+
+const projectPutSchema = projectPostSchema.partial().extend({
+    id: z.string().refine(val => ObjectId.isValid(val), 'Geçersiz Proje ID formatı.')
+});
 
 export default async function handler(req, res) {
     if (req.method === 'OPTIONS') {
@@ -56,7 +74,11 @@ export default async function handler(req, res) {
 
         case 'POST':
             try {
-                const newProject = req.body;
+                const validation = projectPostSchema.safeParse(req.body);
+                if (!validation.success) {
+                    return res.status(400).json({ error: validation.error.errors[0].message });
+                }
+                const newProject = validation.data;
                 newProject.createdAt = new Date();
                 newProject.status = 'Active'; // Default status
 
@@ -87,14 +109,16 @@ export default async function handler(req, res) {
             break;
 
         case 'PUT':
-            // Update logic (e.g. for status change or edits)
             try {
-                const { id, _id, ...updateData } = req.body;
-                if (!id) return res.status(400).json({ error: 'ID required' });
+                const validation = projectPutSchema.safeParse(req.body);
+                if (!validation.success) {
+                    return res.status(400).json({ error: validation.error.errors[0].message });
+                }
+                const { id, ...updateData } = validation.data;
 
                 await collection.updateOne(
                     { _id: new ObjectId(id) },
-                    { $set: updateData }
+                    { $set: { ...updateData, updatedAt: new Date() } }
                 );
 
                 // Calendar synchronization
@@ -145,7 +169,7 @@ export default async function handler(req, res) {
                 if (!id) return res.status(400).json({ error: 'ID required' });
 
                 const result = await collection.deleteOne({ _id: new ObjectId(id) });
-                
+
                 // Calendar synchronization
                 await db.collection('calendar').deleteOne({ projectId: new ObjectId(id) });
 
