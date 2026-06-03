@@ -3,14 +3,27 @@ import { ObjectId } from 'mongodb';
 import { verifyAuth } from '../lib/auth.js';
 import { z } from 'zod';
 
+const quotaSchema = z.object({
+    species: z.string(),
+    strain: z.string(),
+    sex: z.string(),
+    count: z.coerce.number().int().nonnegative(),
+    used: z.coerce.number().int().nonnegative().optional().default(0)
+});
+
 const projectPostSchema = z.object({
     title: z.string().min(1, 'Proje başlığı gereklidir.'),
     code: z.string().min(1, 'Proje kodu gereklidir.'),
+    protocol: z.string().optional().default(''),
     pi: z.string().min(1, 'Yürütücü (PI) adı gereklidir.'),
     ethicsStartDate: z.string().optional(),
     ethicsEndDate: z.string().optional(),
     startDate: z.string().optional(),
     endDate: z.string().optional(),
+    status: z.string().optional().default('Active'),
+    workRulesForm: z.coerce.boolean().optional().default(false),
+    projectNotebook: z.coerce.boolean().optional().default(false),
+    quotas: z.array(quotaSchema).optional().default([]),
     animalQuota: z.coerce.number().int().nonnegative('Hayvan kotası negatif olamaz.').optional().default(0),
     budget: z.coerce.number().nonnegative('Bütçe negatif olamaz.').optional().default(0),
     description: z.string().optional().default('')
