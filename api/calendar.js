@@ -1,6 +1,16 @@
 import clientPromise from '../lib/mongodb.js';
+import { verifyAuth } from '../lib/auth.js';
 
 export default async function handler(req, res) {
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    const user = await verifyAuth(req, 'labproject');
+    if (!user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     const client = await clientPromise;
     const db = client.db('LabProject_db');
     const collection = db.collection('calendar');
@@ -25,39 +35,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
         try {
-            const cookieHeader = req.headers.cookie || '';
-            let userRole = 'user';
-            let userEmail = '';
-
-            // 1. Auth check: standard verify or development mock fallback
-            const isDevMock = process.env.NODE_ENV === 'development' && !cookieHeader.includes('interapp_session');
-            if (isDevMock) {
-                userRole = 'admin';
-                userEmail = 'dev@wildtype.app';
-            } else {
-                const apexResponse = await fetch('https://wildtype.app/api/auth/me', {
-                    method: 'GET',
-                    headers: {
-                        'Cookie': cookieHeader,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!apexResponse.ok) {
-                    return res.status(401).json({ error: 'Kimlik doğrulama başarısız.' });
-                }
-
-                const userData = await apexResponse.json();
-                userEmail = userData.email;
-
-                const apexDb = client.db('Apex_db');
-                const dbUser = await apexDb.collection('users').findOne({ email: userEmail });
-                if (dbUser) {
-                    userRole = dbUser.role;
-                }
-            }
-
-            if (userRole !== 'admin') {
+            if (user.role !== 'admin') {
                 return res.status(403).json({ error: 'Bu işlem için yetkiniz bulunmamaktadır.' });
             }
 
