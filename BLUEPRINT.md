@@ -27,11 +27,15 @@ LabProject, Apex ekosistemi içinde "Kural Koyucu" (Policy Maker) rolünü üstl
 - [x] Temel kota (Quota) tanımlama.
 - [x] Durum (Status) takibi.
 
-### Faz 2: Entegrasyon ve Otomasyon
-- [ ] **Proje Takvimi:** Tüm projelerin Gantt şeması görünümleri.
-- [ ] **Dispo Entegrasyonu:** Dispo'da harcanan her bir hayvanın otomatik olarak LabProject kotasından düşülmesi.
-- [ ] **Otomatik Uyarılar:** Süresi yaklaşan projeler veya dolan kotalar için e-posta bildirimleri.
+### Faz 2: Entegrasyon, Doğrulama ve Yönlendirme (Tamamlandı ✅)
+- [x] **Yönlendirme:** `react-router-dom` entegrasyonu ile URL tabanlı yönlendirme (`/`, `/calendar`, `/reports`).
+- [x] **SSO Entegrasyonu:** Ön yüzden statik dummy durumların silinmesi ve gerçek zamanlı `useAuth()` oturumunun bağlanması.
+- [x] **Zod API Doğrulamaları:** Kayıt/güncelleme gövdelerinin Zod ile doğrulanması, nested kota dizileri ve durumların alan kırpılma (stripping) hatasına karşı koruma altına alınması.
+- [x] **Tarih Kuralları:** Başlangıç tarihinin bitiş tarihinden önce olması kontrolü.
+- [x] **Takvim Görünümü:** `/calendar` üzerinden projelerin sürelerinin izlenebilmesi.
 
-### Faz 3: Akıllı Analiz
-- [ ] **AI Destekli Form Doldurma:** Etik kurul PDF dosyalarının taranarak sistemin otomatik doldurulması.
-- [ ] **Kullanım Tahminleri:** Geçmiş verilere dayanarak gelecek kota ihtiyaçlarının tahmini.
+### Faz 3: Gelişmiş Özellikler (Planlanıyor)
+- [ ] **Dispo Entegrasyonu:** Dispo modülünde harcanan her bir hayvanın otomatik olarak LabProject kotasından düşürülmesi.
+- [ ] **Otomatik Uyarılar:** Süresi yaklaşan projeler veya dolan kotalar için ön yüz/e-posta bildirimleri.
+- [ ] **AI Destekli Form Taraması:** Etik kurul PDF dosyalarının OCR ile okunarak proje verilerinin otomatik doldurulması.
+- [ ] **Kullanım Tahminleri:** Geçmiş trendlere göre gelecek dönem kota ihtiyaçlarının tahmin edilmesi.

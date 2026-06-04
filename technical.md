@@ -55,19 +55,30 @@ Veritabanı: `LabProject_db`
 }
 ```
 
-## 🔌 API Referansı
+## 🔌 API Referansı & Rotalar
 
-### `/api/projects`
+### Ön Yüz Yönlendirmeleri (`react-router-dom`)
+- `/` - Proje Listesi ve Yönetim Arayüzü (Ana sayfa)
+- `/calendar` - Proje Süre ve Takvim Görünümü
+- `/reports` - İstatistiksel Grafik ve Rapor Paneli
 
-- **GET**: Tüm projeleri listeler. `created_at` tarihine göre yeniden eskiye sıralı döner.
-- **POST**: Yeni proje oluşturur.
-- **PUT**: Mevcut bir projeyi günceller.
-- **DELETE**: Projeyi siler. Query string'de `id` parametresini bekler.
+### Sunucu API Endpoint'leri (Zod Validasyonlu)
+API istek gövdeleri sunucu tarafında Zod şemaları ile sıkı doğrulama aşamasına tabi tutulur. 
 
-## 💻 Frontend Mantığı
+#### Projeler API (`/api/projects`)
+- **GET `/api/projects`**: Sistemdeki tüm projeleri listeler.
+- **POST `/api/projects`**: Yeni bir proje kaydeder. Gönderilen veri gövdesi Zod şeması ile kontrol edilir.
+- **PUT `/api/projects`**: Mevcut bir projeyi (durumunu, tarihlerini, kotalarını vb.) günceller.
+- **DELETE `/api/projects?id={id}`**: Belirtilen ID'ye sahip projeyi siler.
 
-### Bileşen Hiyerarşisi
-- `App.jsx`: Ana layout ve routing.
-- `ProjectList.jsx`: Projelerin listelendiği ana ekran.
-- `ProjectForm.jsx`: Proje oluşturma ve düzenleme modalı.
-- `ProjectReports.jsx`: İstatistiksel özet ekranı.
+#### 🛡️ Zod Doğrulama ve Alan Kırpma (Parameter Stripping) Koruması
+MongoDB güncellemelerinde formdan gönderilen verilerin kaybolmaması için Zod şeması aşağıdaki nested alt yapıları da tam olarak kapsayacak şekilde tanımlanmıştır:
+- `quotas`: Tür (`species`), suş (`strain`), cinsiyet (`sex`), limit (`count`) ve kullanılan (`used`) verilerini içeren dizi.
+- `status`: Projenin güncel durumu.
+- `workRulesForm`: Çalışma kuralları formu teslimat durumu (Boolean).
+- Tarih validasyonunda, `ethicsStartDate` < `ethicsEndDate` kuralı hem sunucuda hem ön yüzde kontrol edilir.
+
+## 💻 Ön Yüz Oturum Entegrasyonu
+
+`App.jsx` üzerinde bulunan eski statik dummy kullanıcı durumları (user, loading) tamamen temizlenerek, projenin en dış sarmalayıcısı olan `<AuthProvider>` üzerinden beslenen gerçek `useAuth()` context'ine bağlanmıştır. Böylece SSO oturum akışı ve kullanıcı izinleri alt uygulamada hatasız şekilde senkronize çalışır.
+

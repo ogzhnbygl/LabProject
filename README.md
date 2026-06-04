@@ -7,16 +7,16 @@
 - **Proje Yönetimi ve Takibi:**
     - Proje başlığı, etik numarası, protokol numarası ve yürütücü bilgileri ile detaylı proje tanımlama.
     - Etik kurul başlangıç/bitiş tarihleri ve proje çalışma takviminin ayrı ayrı takibi.
-    - "Çalışma Kuralları Formu" ve "Proje Defteri" gibi zorunlu dokümanların teslim durumunun takibi.
-- **Hızlı Erişim ve Filtreleme:**
-    - Etik no, proje başlığı veya yürütücü (PI) adına göre anlık arama.
-    - Projeleri mevcut durumlarına göre (Örn: Sadece 'Aktif' olanlar) filtreleme yeteneği.
-- **Raporlar ve Analiz:**
-    - Tüm projelerin durumlarına göre dağılımını gösteren görsel Dashboard.
-    - Toplam, aktif, tamamlanan ve süresi dolan proje sayılarının anlık takibi.
-- **Hayvan Kotası (Quota Management):**
-    - Tür (Fare, Sıçan vb.), Suş ve Cinsiyet bazında hayvan kullanım haklarının tanımlanması.
-    - Toplam izin verilen ve kullanılan hayvan sayılarının görselleştirilmesi (Örn: 5/20).
+    - "Çalışma Kuralları Formu" ve "Proje Defteri" gibi doküman teslimatlarının entegre takibi.
+    - Projelerin durum (aktif, taslak, tamamlandı vb.) güncellemelerinin sunucuda güvenli şekilde saklanması.
+- **Güvenli Kimlik ve Oturum Yönetimi (Faz 1 & Faz 2):**
+    - Apex merkezi kimlik sağlayıcısına entegre, `interapp_session` JWT çerez kontrolü.
+    - `App.jsx` üzerindeki geçici (dummy) kullanıcı durumlarının temizlenerek gerçek `useAuth()` bağlamı ile oturum senkronizasyonunun kurulması.
+    - `react-router-dom` tabanlı yönlendirme ile `/`, `/calendar`, `/reports` rotalarının hayata geçirilmesi.
+- **Hayvan Kotası ve Veri Bütünlüğü (Zod):**
+    - Tür, Suş ve Cinsiyet bazında hayvan kullanım kotalarının tanımlanması.
+    - Sunucu tarafında Zod validasyon şeması ile veri doğrulaması yapılırken nested `quotas` yapısı ve proje meta verilerinin kırpılmasını (parameter stripping) engelleyen güçlü doğrulama.
+    - İzin başlangıç tarihinin bitiş tarihinden önce olması zorunluluğunun backend düzeyinde kontrolü.
 
 ## 🛠️ Teknolojiler
 
