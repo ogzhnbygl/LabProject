@@ -46,6 +46,7 @@ function vercelServerless() {
           // Mock Vercel req/res objects
           const vReq = {
             ...req,
+            headers: req.headers,
             query: Object.fromEntries(url.searchParams),
             body: body,
             method: req.method,
