@@ -11,7 +11,7 @@ const quotaSchema = z.object({
     used: z.coerce.number().int().nonnegative().optional().default(0)
 });
 
-const projectPostSchema = z.object({
+const baseProjectSchema = z.object({
     title: z.string().min(1, 'Proje başlığı gereklidir.'),
     code: z.string().min(1, 'Proje kodu gereklidir.'),
     protocol: z.string().optional().default(''),
@@ -29,9 +29,31 @@ const projectPostSchema = z.object({
     description: z.string().optional().default('')
 });
 
-const projectPutSchema = projectPostSchema.partial().extend({
-    id: z.string().refine(val => ObjectId.isValid(val), 'Geçersiz Proje ID formatı.')
-});
+const validateDateOrder = (data, ctx) => {
+    if (data.ethicsStartDate && data.ethicsEndDate && data.ethicsStartDate > data.ethicsEndDate) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['ethicsEndDate'],
+            message: 'Etik bitiş tarihi, etik başlangıç tarihinden önce olamaz.'
+        });
+    }
+    if (data.startDate && data.endDate && data.startDate > data.endDate) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['endDate'],
+            message: 'Proje bitiş tarihi, proje başlangıç tarihinden önce olamaz.'
+        });
+    }
+};
+
+const projectPostSchema = baseProjectSchema.superRefine(validateDateOrder);
+
+const projectPutSchema = baseProjectSchema
+    .partial()
+    .extend({
+        id: z.string().refine(val => ObjectId.isValid(val), 'Geçersiz Proje ID formatı.')
+    })
+    .superRefine(validateDateOrder);
 
 export default async function handler(req, res) {
     if (req.method === 'OPTIONS') {

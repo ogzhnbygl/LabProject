@@ -8,7 +8,10 @@ const MONTHS = [
 ];
 
 export default function ProjectCalendar() {
-    const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 1)); // Default to June 2026 matching system time
+    const [currentDate, setCurrentDate] = useState(() => {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), 1);
+    });
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedEvent, setSelectedEvent] = useState(null);

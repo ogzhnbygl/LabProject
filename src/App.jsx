@@ -1,11 +1,92 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import ProjectList from './pages/ProjectList';
 import ProjectForm from './pages/ProjectForm';
 import ProjectReports from './pages/ProjectReports';
 import ProjectCalendar from './pages/ProjectCalendar';
 import { useAuth } from './context/AuthContext';
+
+function EditProjectRoute({ cachedProject, onProjectLoaded, onCancel, onSave, onDelete }) {
+    const { id } = useParams();
+    const [project, setProject] = useState(() =>
+        cachedProject && cachedProject.id === id ? cachedProject : null
+    );
+    const [loading, setLoading] = useState(!project);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        if (cachedProject && cachedProject.id === id) {
+            setProject(cachedProject);
+            setLoading(false);
+            setError('');
+            return;
+        }
+
+        let cancelled = false;
+        setLoading(true);
+        setError('');
+
+        fetch(`/api/projects?id=${encodeURIComponent(id)}`)
+            .then(async (res) => {
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(data.error || 'Proje bulunamadı.');
+                }
+                if (!cancelled) {
+                    setProject(data);
+                    onProjectLoaded(data);
+                }
+            })
+            .catch((err) => {
+                if (!cancelled) {
+                    setError(err.message || 'Proje detayları yüklenirken bir hata oluştu.');
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [id, cachedProject, onProjectLoaded]);
+
+    if (loading) {
+        return (
+            <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl border border-slate-200 shadow-sm text-center text-slate-500">
+                Proje detayları yükleniyor...
+            </div>
+        );
+    }
+
+    if (error || !project) {
+        return (
+            <div role="alert" className="max-w-3xl mx-auto bg-white p-8 rounded-xl border border-red-200 shadow-sm text-center space-y-4">
+                <p className="text-red-600 font-medium">{error || 'Proje bulunamadı.'}</p>
+                <button
+                    type="button"
+                    onClick={onCancel}
+                    className="px-4 py-2 text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
+                >
+                    Proje Listesine Dön
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <ProjectForm
+            key={project.id}
+            initialData={project}
+            onCancel={onCancel}
+            onSave={onSave}
+            onDelete={onDelete}
+        />
+    );
+}
 
 function MainApp() {
     const navigate = useNavigate();
@@ -41,12 +122,16 @@ function MainApp() {
                 setPaginationState(prev => ({ ...prev, currentPage: 1 }));
                 setStatusFilter('All');
                 setSearchTerm('');
+                return true;
             } else {
-                alert('Error saving project');
+                const errData = await res.json().catch(() => ({}));
+                alert(errData.error || 'Proje kaydedilirken bir hata oluştu.');
+                return false;
             }
         } catch (e) {
             console.error(e);
-            alert('Network error');
+            alert('Bağlantı hatası oluştu.');
+            return false;
         }
     };
 
@@ -58,14 +143,19 @@ function MainApp() {
                 body: JSON.stringify(data)
             });
             if (res.ok) {
+                setEditingProject(null);
                 setRefreshTrigger(prev => prev + 1);
                 navigate('/');
+                return true;
             } else {
-                alert('Error updating project');
+                const errData = await res.json().catch(() => ({}));
+                alert(errData.error || 'Proje güncellenirken bir hata oluştu.');
+                return false;
             }
         } catch (e) {
             console.error(e);
-            alert('Network error');
+            alert('Bağlantı hatası oluştu.');
+            return false;
         }
     };
 
@@ -73,31 +163,33 @@ function MainApp() {
         if (!confirm('Projeyi silmek istediğinize emin misiniz?')) return;
 
         try {
-            const res = await fetch(`/api/projects?id=${id}`, {
+            const res = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, {
                 method: 'DELETE',
             });
             if (res.ok) {
+                setEditingProject(null);
                 setRefreshTrigger(prev => prev + 1);
                 navigate('/');
             } else {
-                alert('Error deleting project');
+                const errData = await res.json().catch(() => ({}));
+                alert(errData.error || 'Proje silinirken bir hata oluştu.');
             }
         } catch (e) {
             console.error(e);
-            alert('Network error');
+            alert('Bağlantı hatası oluştu.');
         }
     };
 
     const onProjectClick = async (projectSummary) => {
         try {
-            const res = await fetch(`/api/projects?id=${projectSummary.id}`);
+            const res = await fetch(`/api/projects?id=${encodeURIComponent(projectSummary.id)}`);
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}));
-                throw new Error(errData.error || 'Failed to fetch project details');
+                throw new Error(errData.error || 'Proje detayları alınamadı.');
             }
             const fullProject = await res.json();
             setEditingProject(fullProject);
-            navigate('/edit');
+            navigate(`/edit/${projectSummary.id}`);
         } catch (e) {
             console.error(e);
             alert(`Proje detayları yüklenirken hata: ${e.message}`);
@@ -129,14 +221,16 @@ function MainApp() {
                         onSave={handleSaveProject}
                     />
                 } />
-                <Route path="/edit" element={
-                    <ProjectForm
-                        initialData={editingProject}
+                <Route path="/edit/:id" element={
+                    <EditProjectRoute
+                        cachedProject={editingProject}
+                        onProjectLoaded={setEditingProject}
                         onCancel={() => navigate('/')}
                         onSave={handleUpdateProject}
                         onDelete={handleDeleteProject}
                     />
                 } />
+                <Route path="/edit" element={<Navigate to="/" replace />} />
                 <Route path="/timeline" element={<ProjectCalendar />} />
                 <Route path="/reports" element={<ProjectReports projects={projects} />} />
             </Routes>
