@@ -2,6 +2,21 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
+export const isPreviewHost = () => {
+    if (typeof window === 'undefined') return false;
+    const h = window.location.hostname;
+    return h === 'test.wildtype.app' || h.startsWith('test-') || h.endsWith('.vercel.app');
+};
+
+export const getApexUrl = () => {
+    if (typeof window !== 'undefined') {
+        const h = window.location.hostname;
+        if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:5173';
+        if (isPreviewHost()) return 'https://test.wildtype.app';
+    }
+    return 'https://wildtype.app';
+};
+
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
@@ -50,17 +65,17 @@ export const AuthProvider = ({ children }) => {
 
                 // Show specific debug error to user/admin
                 alert(errorData.error || 'Bu uygulamaya erişim yetkiniz bulunmamaktadır.');
-                window.location.href = 'https://wildtype.app';
+                window.location.href = getApexUrl();
             } else {
                 // If 401 or other error, redirect to login
                 console.warn('Authentication failed, redirecting to login...');
-                window.location.href = 'https://wildtype.app/login';
+                window.location.href = `${getApexUrl()}/login`;
             }
         } catch (error) {
             console.error('Auth check error:', error);
             // On network error, you might want to retry or redirect. 
             // For now, redirecting to be safe/consistent with "secure by default".
-            window.location.href = 'https://wildtype.app/login';
+            window.location.href = `${getApexUrl()}/login`;
         } finally {
             setLoading(false);
         }
@@ -68,7 +83,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         // Redirect to main app for logout handling
-        window.location.href = 'https://wildtype.app';
+        window.location.href = getApexUrl();
     };
 
     useEffect(() => {

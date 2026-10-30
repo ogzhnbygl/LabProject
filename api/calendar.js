@@ -1,4 +1,4 @@
-import clientPromise from '../lib/mongodb.js';
+import clientPromise, { getDbName } from '../lib/mongodb.js';
 import { verifyAuth } from '../lib/auth.js';
 
 export default async function handler(req, res) {
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     }
 
     const client = await clientPromise;
-    const db = client.db('LabProject_db');
+    const db = client.db(getDbName('LabProject_db'));
     const collection = db.collection('calendar');
 
     if (req.method === 'GET') {
