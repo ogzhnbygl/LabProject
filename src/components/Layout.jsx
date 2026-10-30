@@ -1,5 +1,5 @@
-import { FileText, LogOut } from 'lucide-react';
-import { useAuth, isPreviewHost } from '../context/AuthContext';
+import { FileText, LogOut, LayoutGrid } from 'lucide-react';
+import { useAuth, getApexUrl, isPreviewHost } from '../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 
 export function Layout({ children }) {
@@ -64,7 +64,15 @@ export function Layout({ children }) {
                                     {user.name || user.email}
                                 </span>
                             )}
+                            <a
+                                href={getApexUrl()}
+                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                                title="Apex Ana Ekrana Dön"
+                            >
+                                <LayoutGrid size={20} />
+                            </a>
                             <button
+                                type="button"
                                 onClick={logout}
                                 className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                                 title="Çıkış Yap"
